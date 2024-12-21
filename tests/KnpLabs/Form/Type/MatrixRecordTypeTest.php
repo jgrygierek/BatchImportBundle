@@ -13,6 +13,7 @@ use JG\BatchEntityImportBundle\Tests\SkippedTestsTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormFactory;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class MatrixRecordTypeTest extends WebTestCase
 {
@@ -32,7 +33,10 @@ class MatrixRecordTypeTest extends WebTestCase
     public function testValidFormWithTranslatableField(): void
     {
         $data = ['description:pl' => 'Lorem Ipsum'];
-        $configuration = new TranslatableEntityConfiguration($this->createMock(EntityManagerInterface::class));
+        $configuration = new TranslatableEntityConfiguration(
+            $this->createMock(EntityManagerInterface::class),
+            $this->createMock(EventDispatcherInterface::class),
+        );
         $matrixRecord = new MatrixRecord($data);
 
         $form = $this->factory->create(MatrixRecordType::class, $matrixRecord, ['configuration' => $configuration]);
