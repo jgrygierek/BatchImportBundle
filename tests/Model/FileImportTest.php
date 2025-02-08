@@ -62,7 +62,9 @@ class FileImportTest extends AbstractValidationTestCase
         $fileImport = new FileImport(['csv', 'xls', 'xlsx', 'ods']);
         $this->setUploadedFile($fileImport, 'csv', false);
 
-        self::assertNotEmpty($this->getErrors($fileImport));
+        $errors = $this->getErrors($fileImport);
+        self::assertCount(1, $errors);
+        self::assertSame('An empty file is not allowed.', $errors[0]->getMessage());
     }
 
     /**
@@ -73,7 +75,9 @@ class FileImportTest extends AbstractValidationTestCase
         $fileImport = new FileImport($allowedExtensions);
         $this->setUploadedFile($fileImport, $extension);
 
-        self::assertNotEmpty($this->getErrors($fileImport));
+        $errors = $this->getErrors($fileImport);
+        self::assertCount(1, $errors);
+        self::assertSame('validation.file.extension', $errors[0]->getMessage());
     }
 
     public static function invalidExtensionsProvider(): Generator
@@ -83,14 +87,6 @@ class FileImportTest extends AbstractValidationTestCase
         yield ['txt', ['csv', 'xls', 'xlsx', 'ods']];
         yield ['', ['csv', 'xls', 'xlsx', 'ods']];
         yield ['csv', []];
-    }
-
-    public function testEmptyContentError(): void
-    {
-        $fileImport = new FileImport(['csv', 'xls', 'xlsx', 'ods']);
-        $fileImport->setFile($this->createUploadedFile('csv', false));
-
-        self::assertNotEmpty($this->getErrors($fileImport));
     }
 
     private function setUploadedFile(FileImport $fileImport, string $fileExtension, bool $withContent = true): void

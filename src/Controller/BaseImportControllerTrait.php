@@ -89,7 +89,6 @@ trait BaseImportControllerTrait
             $this->getMatrixEditTemplateName(),
             [
                 'header_info' => $matrix->getHeaderInfo($configuration->getEntityClassName()),
-                'data' => $matrix->getRecords(),
                 'form' => $form->createView(),
                 'importConfiguration' => $configuration,
             ]

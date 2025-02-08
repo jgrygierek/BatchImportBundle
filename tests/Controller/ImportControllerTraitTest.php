@@ -66,6 +66,28 @@ class ImportControllerTraitTest extends WebTestCase
         $this->assertEntityValues($expectedDefaultValues, $updatedEntityId);
 
         $this->submitSelectFileForm(__DIR__ . '/../Fixtures/Resources/test_updated_data.csv');
+
+        $this->assertSame(
+            '2',
+            $this->client->getCrawler()->filterXpath('//select[@name="matrix[records][0][entity]"]/option[@selected]')->attr('value'),
+        );
+        $this->assertSame(
+            'test',
+            $this->client->getCrawler()->filterXpath('//input[@name="matrix[records][0][test_private_property]"]')->attr('value'),
+        );
+        $this->assertSame(
+            'lorem ipsum',
+            $this->client->getCrawler()->filterXpath('//input[@name="matrix[records][0][test-private-property2]"]')->attr('value'),
+        );
+        $this->assertSame(
+            'qwerty',
+            $this->client->getCrawler()->filterXpath('//input[@name="matrix[records][0][test_public_property]"]')->attr('value'),
+        );
+        $this->assertSame(
+            'arr_val_1000|array_val_1001',
+            $this->client->getCrawler()->filterXpath('//input[@name="matrix[records][0][test_array_field]"]')->attr('value'),
+        );
+
         $this->client->submitForm('btn-submit', [
             'matrix' => [
                 'records' => [

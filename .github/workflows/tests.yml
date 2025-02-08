@@ -2,30 +2,14 @@ name: Tests
 
 on:
     push:
-        branches:
-            - '**'
     pull_request:
-        branches:
-            - master
+        types: [ opened, reopened ]
 
 jobs:
-    pre_job:
-        runs-on: ubuntu-latest
-        outputs:
-            should_skip: ${{ steps.skip_check.outputs.should_skip }}
-        steps:
-            - id: skip_check
-              uses: fkirc/skip-duplicate-actions@v5
-              with:
-                  concurrent_skipping: always
-                  skip_after_successful_duplicate: true
-                  do_not_skip: '["pull_request"]'
 
     tests:
         runs-on: ubuntu-latest
         name: Tests
-        needs: pre_job
-        if: needs.pre_job.outputs.should_skip != 'true'
 
         strategy:
             fail-fast: false

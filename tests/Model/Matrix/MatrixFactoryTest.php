@@ -19,12 +19,44 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class MatrixFactoryTest extends TestCase
 {
     /**
+     * @dataProvider importFilesDataProvider
+     */
+    public function testCreateFromRealUploadedFileSuccess(string $file, array $expectedHeader, int $expectedRecordNumber): void
+    {
+        $uploadedFile = new UploadedFile($file, $file);
+        $matrix = MatrixFactory::createFromUploadedFile($uploadedFile);
+
+        $this->assertSame($expectedHeader, $matrix->getHeader());
+        $this->assertCount($expectedRecordNumber, $matrix->getRecords());
+    }
+
+    public static function importFilesDataProvider(): Generator
+    {
+        yield [
+            __DIR__ . '/../../Fixtures/Resources/test.csv',
+            ['test_private_property', 'test-private-property2', 'test_public_property', 'test_array_field'],
+            30,
+        ];
+        yield [
+            __DIR__ . '/../../Fixtures/Resources/test.xls',
+            ['test_private_property', 'test-private-property2', 'test_public_property', 'test_array_field'],
+            30,
+        ];
+        yield [
+            __DIR__ . '/../../Fixtures/Resources/test.xlsx',
+            ['test_private_property', 'test-private-property2', 'test_public_property', 'test_array_field'],
+            30,
+        ];
+        yield [__DIR__ . '/../../Fixtures/Resources/test_import_with_rows_without_cells.xlsx', ['Domain', 'Another', 'Comment'], 24];
+    }
+
+    /**
      * @dataProvider dataProvider
      *
      * @throws SpreadsheetException
      * @throws Exception
      */
-    public function testCreateFromUploadedFileSuccess(string $fileExtension, CsvDelimiterEnum $delimiter = CsvDelimiterEnum::COMMA): void
+    public function testCreateFromGeneratedUploadFileSuccess(string $fileExtension, CsvDelimiterEnum $delimiter = CsvDelimiterEnum::COMMA): void
     {
         foreach ($this->contentProvider() as $data) {
             $file = $this->createFile($fileExtension, $delimiter, \array_merge([$data['header']], $data['records']));

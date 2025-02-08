@@ -1,2 +1,2 @@
-test_private_property,test-private-property2,test public property,test_array_field
-test,lorem ipsum,qwerty,arr_val_1000|array_val_1001
+test_private_property,test-private-property2,test public property,test_array_field,entity_id
+test,lorem ipsum,qwerty,arr_val_1000|array_val_1001,2

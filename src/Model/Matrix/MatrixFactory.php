@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use JG\BatchEntityImportBundle\Service\CsvDelimiterDetector;
 use PhpOffice\PhpSpreadsheet\Reader\BaseReader;
 use PhpOffice\PhpSpreadsheet\Reader\Csv;
+use PhpOffice\PhpSpreadsheet\Reader\Xls;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -55,7 +56,7 @@ class MatrixFactory
         if ($reader instanceof Csv) {
             $detectedDelimiter = (new CsvDelimiterDetector())->detect($file->getContent());
             $reader->setDelimiter($detectedDelimiter->value);
-        } elseif ($reader instanceof Xlsx) {
+        } elseif ($reader instanceof Xls || $reader instanceof Xlsx) {
             $reader->setIgnoreRowsWithNoCells(true);
         }
 

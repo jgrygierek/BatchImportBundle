@@ -9,7 +9,7 @@ class MatrixRecord
     private ?object $entity = null;
     private array $data = [];
 
-    public function __construct(array $data = [])
+    public function __construct(array $data = [], public readonly int|string|null $entityId = null)
     {
         foreach ($data as $name => $value) {
             if (!empty(\trim((string) $name))) {

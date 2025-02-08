@@ -37,6 +37,7 @@ Importing entities with preview and edit features for Symfony.
     * [Controller-specific templates](#controller-specific-templates)
     * [Main layout](#main-layout)
     * [Additional data](#additional-data)
+* [Updating entities](#updating-entities)
 * [Importing data to array field](#importing-data-to-array-field)
 * [Full example of CSV file](#full-example-of-csv-file)
 
@@ -360,6 +361,25 @@ protected function prepareMatrixEditView(FormInterface $form, Matrix $matrix, bo
 }
 ```
 
+## Updating entities
+
+If you want to update your entities:
+- Set `allowOverrideEntity` to `true` in your import configuration file. 
+- Then in your import file:
+  - Add `entity_id` in header and:
+    - Add entity ID to row
+    - Leave it empty (if you want to set it manually or import it as new record)
+  - Or if you don't want to add `entity_id` header, you can still manually set each entity to override.
+
+#### CSV file
+
+```csv
+entity_id,user_name
+2,user_1
+,user_2
+10,user_3
+```
+
 ## Importing data to array field
 
 If your entity has an array field, and you want to import data from CSV file to it, this is how you can do it.
@@ -434,8 +454,8 @@ user_3,SUPER_ADMIN
 ## Full example of CSV file
 
 ```csv
-user_name,age,email,roles,country:en,name:pl
-user_1,21,user_1@test.com,USER&ADMIN&SUPER_ADMIN,Poland,Polska
-user_2,34,user_2@test.com,USER,England,Anglia
-user_3,56,user_3@test.com,SUPER_ADMIN,Germany,Niemcy
+entity_id,user_name,age,email,roles,country:en,name:pl
+1,user_1,21,user_1@test.com,USER&ADMIN&SUPER_ADMIN,Poland,Polska
+3, user_2,34,user_2@test.com,USER,England,Anglia
+,user_3,56,user_3@test.com,SUPER_ADMIN,Germany,Niemcy
 ```

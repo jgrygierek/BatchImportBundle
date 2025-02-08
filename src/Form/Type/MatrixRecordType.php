@@ -19,6 +19,8 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\Exception\AccessException;
 use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -100,5 +102,18 @@ class MatrixRecordType extends AbstractType
         $definition
             ? $event->getForm()->add($columnName, $definition->getClass(), $definition->getOptions())
             : $event->getForm()->add($columnName, TextType::class);
+    }
+
+    public function finishView(FormView $view, FormInterface $form, array $options): void
+    {
+        /** @var MatrixRecord $entity */
+        $entity = $form->getData();
+        $selectedValue = $entity->entityId;
+
+        foreach ($view['entity']->vars['choices'] ?? [] as $index => $choice) {
+            if ($choice->value === $selectedValue) {
+                $view['entity']->vars['choices'][$index]->attr['selected'] = 'selected';
+            }
+        }
     }
 }

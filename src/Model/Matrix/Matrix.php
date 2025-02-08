@@ -12,6 +12,7 @@ use const ARRAY_FILTER_USE_KEY;
 class Matrix
 {
     private const RESERVED_ENTITY_COLUMN_NAME = 'entity';
+    private const RESERVED_ENTITY_ID_COLUMN_NAME = 'entity_id';
     #[Assert\All([
         new Assert\NotBlank(),
         new Assert\Type('string'),
@@ -33,9 +34,9 @@ class Matrix
         $this->header = $this->clearHeader($header);
 
         foreach ($recordsData as $data) {
-            $data = $this->clearRecordData($data);
-            if ($data) {
-                $this->records[] = new MatrixRecord($data);
+            $clearedData = $this->clearRecordData($data);
+            if ($clearedData) {
+                $this->records[] = new MatrixRecord($clearedData, $this->getEntityIdValue($data));
             }
         }
     }
@@ -65,6 +66,17 @@ class Matrix
         return $info;
     }
 
+    private function getEntityIdValue(array $data): int|string|null
+    {
+        foreach ($data as $name => $value) {
+            if (self::RESERVED_ENTITY_ID_COLUMN_NAME === $name) {
+                return $value;
+            }
+        }
+
+        return null;
+    }
+
     private function clearHeader(array $header): array
     {
         $header = array_values(
@@ -81,6 +93,6 @@ class Matrix
 
     private function isColumnNameValid(?string $name): bool
     {
-        return !empty(trim((string) $name)) && self::RESERVED_ENTITY_COLUMN_NAME !== $name;
+        return !empty(trim((string) $name)) && !\in_array($name, [self::RESERVED_ENTITY_COLUMN_NAME, self::RESERVED_ENTITY_ID_COLUMN_NAME], true);
     }
 }
