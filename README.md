@@ -31,6 +31,7 @@ Importing entities with preview and edit features for Symfony.
   * [Set allowed file extensions](#set-allowed-file-extensions)
   * [Optimizing queries](#optimizing-queries)
 * [Creating controller](#creating-controller)
+* [Events](#events)
 * [Translations](#translations)
 * [Overriding templates](#overriding-templates)
     * [Global templates](#global-templates)
@@ -152,9 +153,9 @@ public function getMatrixConstraints(): array
 If you want to pass some additional services to your configuration, just override constructor.
 
 ```php
-public function __construct(EntityManagerInterface $em, TestService $service)
+public function __construct(EntityManagerInterface $em, EventDispatcherInterface $eventDispatcher, TestService $service)
 {
-    parent::__construct($em);
+    parent::__construct($em, $eventDispatcher);
 
     $this->testService = $service;
 }
@@ -254,6 +255,23 @@ class ImportController extends AbstractController implements ImportConfiguration
     protected function getImportConfigurationClassName(): string
     {
        return UserImportConfiguration::class;
+    }
+}
+```
+
+## Events
+
+### RecordImportedSuccessfullyEvent
+
+For each successfully processed record, event `RecordImportedSuccessfullyEvent` is dispatched. This event contains two fields:
+- entity class name
+- entity id
+
+```php
+class RecordImportedSuccessfullyEvent
+{
+    public function __construct(readonly public string $class, readonly public string $id)
+    {
     }
 }
 ```

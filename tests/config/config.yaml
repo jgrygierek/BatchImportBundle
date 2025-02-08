@@ -19,6 +19,9 @@ services:
     Psr\Container\ContainerInterface:
         alias: service_container
 
+    JG\BatchEntityImportBundle\Tests\Fixtures\Event\TestableEventDispatcher:
+        decorates: 'event_dispatcher'
+
 framework:
     annotations: false
     test: true

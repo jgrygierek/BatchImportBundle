@@ -7,6 +7,7 @@ namespace JG\BatchEntityImportBundle\Model\Configuration;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
+use JG\BatchEntityImportBundle\Event\RecordImportedSuccessfullyEvent;
 use JG\BatchEntityImportBundle\Exception\DatabaseException;
 use JG\BatchEntityImportBundle\Exception\DatabaseNotUniqueDataException;
 use JG\BatchEntityImportBundle\Exception\MatrixRecordInvalidDataTypeException;
@@ -16,11 +17,14 @@ use JG\BatchEntityImportBundle\Model\Matrix\Matrix;
 use JG\BatchEntityImportBundle\Model\Matrix\MatrixRecord;
 use JG\BatchEntityImportBundle\Utils\ColumnNameHelper;
 use Knp\DoctrineBehaviors\Contract\Entity\TranslatableInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use TypeError;
 
 abstract class AbstractImportConfiguration implements ImportConfigurationInterface
 {
-    public function __construct(private readonly EntityManagerInterface $em)
+    protected array $updatedEntities = [];
+
+    public function __construct(private readonly EntityManagerInterface $em, private readonly EventDispatcherInterface $eventDispatcher)
     {
     }
 
@@ -96,16 +100,30 @@ abstract class AbstractImportConfiguration implements ImportConfigurationInterfa
         if (\interface_exists(TranslatableInterface::class) && $entity instanceof TranslatableInterface) {
             $entity->mergeNewTranslations();
         }
+
+        $this->updatedEntities[] = $entity;
     }
 
     protected function save(): void
     {
         try {
             $this->em->flush();
+            $this->dispatchEvents();
         } catch (UniqueConstraintViolationException) {
             throw new DatabaseNotUniqueDataException();
         } catch (Exception) {
             throw new DatabaseException();
+        }
+    }
+
+    protected function dispatchEvents(): void
+    {
+        foreach ($this->updatedEntities as $entity) {
+            $identifierValues = $this->em->getUnitOfWork()->getEntityIdentifier($entity);
+
+            $this->eventDispatcher->dispatch(
+                new RecordImportedSuccessfullyEvent($this->getEntityClassName(), (string) \reset($identifierValues)),
+            );
         }
     }
 
